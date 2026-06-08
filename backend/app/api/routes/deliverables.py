@@ -19,7 +19,7 @@ AI_TRIGGER_RULES = {
 }
 
 
-@router.get("/project/{project_id}", response_model=List[DeliverableRead])
+@router.get("/project/{project_id}", response_model=List[DeliverableRead])  # pas de slash final
 async def list_deliverables(
     project_id: int,
     bucket_status: Optional[BucketStatus] = None,
@@ -32,7 +32,7 @@ async def list_deliverables(
     return result.scalars().all()
 
 
-@router.post("/", response_model=DeliverableRead, status_code=201)
+@router.post("", response_model=DeliverableRead, status_code=201)
 async def create_deliverable(
     payload: DeliverableCreate,
     session: AsyncSession = Depends(get_session),

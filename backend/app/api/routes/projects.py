@@ -14,7 +14,7 @@ router = APIRouter(prefix="/projects", tags=["projects"])
 
 
 # ── Liste projets (portefeuille) ─────────────────────────────────
-@router.get("/", response_model=List[ProjectRead])
+@router.get("", response_model=List[ProjectRead])
 async def list_projects(
     status: Optional[ProjectStatus] = None,
     phase: Optional[ProjectPhase] = None,
@@ -90,7 +90,7 @@ async def portfolio_kpis(session: AsyncSession = Depends(get_session)):
 
 
 # ── Créer un projet ───────────────────────────────────────────────
-@router.post("/", response_model=ProjectRead, status_code=201)
+@router.post("", response_model=ProjectRead, status_code=201)
 async def create_project(
     payload: ProjectCreate,
     session: AsyncSession = Depends(get_session),
