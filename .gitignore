@@ -1,0 +1,36 @@
+# ── Environnement ─────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ── Node / Next.js ────────────────────────────────────────────
+node_modules/
+.next/
+out/
+dist/
+*.tsbuildinfo
+
+# ── Python ────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# ── Données persistantes (ne jamais committer) ────────────────
+postgres_data/
+redis_data/
+uploads/
+
+# ── Certificats SSL ───────────────────────────────────────────
+nginx/ssl/
+
+# ── OS ────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── IDE ───────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
