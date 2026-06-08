@@ -3,6 +3,7 @@
 import { Project, ProjectPhase, ProjectStatus } from "@/lib/api";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { Pencil } from "lucide-react";
 
 const PHASE_LABELS: Record<ProjectPhase, string> = {
   initialisation: "🔷 Initialisation",
@@ -143,9 +144,10 @@ export function ProjectTable({ projects, onOpen }: ProjectTableProps) {
               <td className="px-3 py-3">
                 <button
                   onClick={() => onOpen(p)}
-                  className="text-blue-600 hover:text-blue-800 text-xs font-medium underline"
+                  className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                  title="Modifier le projet"
                 >
-                  Ouvrir
+                  <Pencil size={13} />
                 </button>
               </td>
             </tr>

@@ -6,6 +6,7 @@ import { projectsApi, Project, ProjectStatus, ProjectPhase } from "@/lib/api";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { ProjectTable } from "@/components/dashboard/ProjectTable";
 import { NewProjectModal } from "@/components/dashboard/NewProjectModal";
+import { EditProjectModal } from "@/components/dashboard/EditProjectModal";
 import { Download, Plus, RefreshCw } from "lucide-react";
 
 const STATUS_FILTERS: { label: string; value: ProjectStatus | "all" }[] = [
@@ -28,6 +29,7 @@ export default function DashboardPage() {
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | "all">("all");
   const [phaseFilter, setPhaseFilter] = useState<ProjectPhase | "all">("all");
   const [showNewProject, setShowNewProject] = useState(false);
+  const [editProject, setEditProject] = useState<Project | null>(null);
   const queryClient = useQueryClient();
 
   const { data: kpis, isLoading: kpiLoading } = useQuery({
@@ -165,7 +167,7 @@ export default function DashboardPage() {
           </div>
           <ProjectTable
             projects={projects}
-            onOpen={(p) => console.log("open", p.id)}
+            onOpen={(p) => setEditProject(p)}
           />
         </div>
       </div>
@@ -178,6 +180,22 @@ export default function DashboardPage() {
             queryClient.invalidateQueries({ queryKey: ["projects"] });
             queryClient.invalidateQueries({ queryKey: ["portfolio-kpis"] });
             setShowNewProject(false);
+          }}
+        />
+      )}
+
+      {/* Modale édition projet */}
+      {editProject && (
+        <EditProjectModal
+          project={editProject}
+          onClose={() => setEditProject(null)}
+          onUpdated={() => {
+            queryClient.invalidateQueries({ queryKey: ["projects"] });
+            queryClient.invalidateQueries({ queryKey: ["portfolio-kpis"] });
+          }}
+          onDeleted={() => {
+            queryClient.invalidateQueries({ queryKey: ["projects"] });
+            queryClient.invalidateQueries({ queryKey: ["portfolio-kpis"] });
           }}
         />
       )}
