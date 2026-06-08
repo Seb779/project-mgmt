@@ -18,6 +18,7 @@ app = FastAPI(
     version="1.0.0",
     description="API de gestion de projet selon la méthodologie HERMES 5.1",
     lifespan=lifespan,
+    redirect_slashes=False,   # évite les 307 qui cassent le routing nginx
 )
 
 app.add_middleware(
