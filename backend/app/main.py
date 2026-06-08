@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 
 from app.core.config import settings
 from app.core.database import create_db_and_tables
-from app.api.routes import projects, deliverables
+from app.api.routes import projects, deliverables, users, documents
 
 
 @asynccontextmanager
@@ -31,6 +31,8 @@ app.add_middleware(
 
 app.include_router(projects.router, prefix="/v1")
 app.include_router(deliverables.router, prefix="/v1")
+app.include_router(users.router, prefix="/v1")
+app.include_router(documents.router, prefix="/v1")
 
 
 @app.get("/health")

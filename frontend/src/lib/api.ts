@@ -122,6 +122,48 @@ export interface BucketMoveResult {
   message?: string;
 }
 
+// ── User ──────────────────────────────────────────────────────────
+export type UserRole = "admin" | "director" | "project_manager" | "viewer";
+
+export interface User {
+  id: number;
+  email: string;
+  full_name: string;
+  role: UserRole;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface UserCreate {
+  email: string;
+  full_name: string;
+  role: UserRole;
+  is_active: boolean;
+  password: string;
+}
+
+export interface UserUpdate {
+  full_name?: string;
+  role?: UserRole;
+  is_active?: boolean;
+  password?: string;
+}
+
+// ── Document ──────────────────────────────────────────────────────
+export interface GenerateDocumentRequest {
+  project_id: number;
+  template_key: string;
+  title?: string;
+  description?: string;
+}
+
+export interface GenerateDocumentResponse {
+  deliverable_id: number;
+  document_path: string;
+  sections: Record<string, string>;
+  generated_at: string;
+}
+
 // ── API calls ─────────────────────────────────────────────────────
 export const projectsApi = {
   list: (params?: { status?: ProjectStatus; phase?: ProjectPhase; archived?: boolean }) =>
@@ -138,6 +180,26 @@ export const projectsApi = {
     api.patch<Project>(`/projects/${id}`, data).then((r) => r.data),
 
   archive: (id: number) => api.delete(`/projects/${id}`),
+};
+
+export const usersApi = {
+  list: () => api.get<User[]>("/users").then((r) => r.data),
+  create: (data: UserCreate) => api.post<User>("/users", data).then((r) => r.data),
+  update: (id: number, data: UserUpdate) =>
+    api.patch<User>(`/users/${id}`, data).then((r) => r.data),
+  delete: (id: number) => api.delete(`/users/${id}`),
+};
+
+export const documentsApi = {
+  list: (projectId?: number) =>
+    api
+      .get<Deliverable[]>("/documents", { params: projectId ? { project_id: projectId } : undefined })
+      .then((r) => r.data),
+
+  generate: (data: GenerateDocumentRequest) =>
+    api.post<GenerateDocumentResponse>("/documents/generate", data).then((r) => r.data),
+
+  downloadUrl: (deliverableId: number) => `${API_URL}/documents/${deliverableId}/download`,
 };
 
 export const deliverablesApi = {
