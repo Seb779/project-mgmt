@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { projectsApi, Project, ProjectStatus, ProjectPhase } from "@/lib/api";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { ProjectTable } from "@/components/dashboard/ProjectTable";
+import { NewProjectModal } from "@/components/dashboard/NewProjectModal";
 import { Download, Plus, RefreshCw } from "lucide-react";
 
 const STATUS_FILTERS: { label: string; value: ProjectStatus | "all" }[] = [
@@ -26,6 +27,8 @@ const PHASE_FILTERS: { label: string; value: ProjectPhase | "all" }[] = [
 export default function DashboardPage() {
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | "all">("all");
   const [phaseFilter, setPhaseFilter] = useState<ProjectPhase | "all">("all");
+  const [showNewProject, setShowNewProject] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: kpis, isLoading: kpiLoading } = useQuery({
     queryKey: ["portfolio-kpis"],
@@ -81,7 +84,10 @@ export default function DashboardPage() {
             <Download size={12} />
             Exporter XLSX
           </button>
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-medium hover:bg-blue-700">
+          <button
+            onClick={() => setShowNewProject(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-medium hover:bg-blue-700"
+          >
             <Plus size={12} />
             Nouveau projet
           </button>
@@ -163,6 +169,18 @@ export default function DashboardPage() {
           />
         </div>
       </div>
+
+      {/* Modale nouveau projet */}
+      {showNewProject && (
+        <NewProjectModal
+          onClose={() => setShowNewProject(false)}
+          onCreated={() => {
+            queryClient.invalidateQueries({ queryKey: ["projects"] });
+            queryClient.invalidateQueries({ queryKey: ["portfolio-kpis"] });
+            setShowNewProject(false);
+          }}
+        />
+      )}
     </div>
   );
 }
