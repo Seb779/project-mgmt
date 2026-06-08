@@ -3,7 +3,15 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { FileText, Download, Sparkles, ChevronRight, Clock, CheckCircle } from "lucide-react";
-import { projectsApi, documentsApi, HERMES_TEMPLATES, Deliverable, GenerateDocumentRequest } from "@/lib/api";
+import { projectsApi, documentsApi, HERMES_TEMPLATES, Deliverable, GenerateDocumentRequest, api } from "@/lib/api";
+
+interface TemplateInfo {
+  filename: string;
+  name: string;
+  template_key: string | null;
+  is_custom: boolean;
+  size_kb: number;
+}
 
 const PHASE_LABELS: Record<string, string> = {
   initialisation: "Initialisation",
@@ -21,9 +29,15 @@ export default function DocumentsPage() {
   const [templateKey, setTemplateKey] = useState<string>("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [customFilename, setCustomFilename] = useState<string>("");
   const [lastResult, setLastResult] = useState<{ deliverable_id: number; sections: Record<string, string> } | null>(null);
 
   // Données
+  const { data: allTemplates = [] } = useQuery({
+    queryKey: ["templates"],
+    queryFn: () => api.get<TemplateInfo[]>("/documents/templates").then((r) => r.data),
+  });
+
   const { data: projects = [] } = useQuery({
     queryKey: ["projects"],
     queryFn: () => projectsApi.list(),
@@ -53,6 +67,7 @@ export default function DocumentsPage() {
       template_key: templateKey,
       title: title || undefined,
       description: description || undefined,
+      custom_template_filename: customFilename || undefined,
     });
     setLastResult(null);
   };
@@ -127,6 +142,30 @@ export default function DocumentsPage() {
               ))}
             </div>
           </div>
+
+          {/* Template source — custom si disponible */}
+          {templateKey && allTemplates.filter((t) => t.is_custom && t.template_key === templateKey).length > 0 && (
+            <div>
+              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1 block">
+                Source du template
+              </label>
+              <select
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                value={customFilename}
+                onChange={(e) => setCustomFilename(e.target.value)}
+              >
+                <option value="">Template intégré HERMES 5.1</option>
+                {allTemplates
+                  .filter((t) => t.is_custom && t.template_key === templateKey)
+                  .map((t) => (
+                    <option key={t.filename} value={t.filename}>{t.name}</option>
+                  ))}
+              </select>
+              {customFilename && (
+                <p className="text-[10px] text-green-600 mt-1">✓ Template personnalisé sélectionné</p>
+              )}
+            </div>
+          )}
 
           {/* Titre optionnel */}
           <div>

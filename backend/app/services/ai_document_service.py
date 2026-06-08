@@ -6,6 +6,7 @@ des templates Word selon la méthodologie HERMES 5.1.
 import anthropic
 import json
 from pathlib import Path
+from typing import Optional
 from docxtpl import DocxTemplate
 from app.core.config import settings
 
@@ -52,7 +53,11 @@ Respecte strictement la terminologie HERMES (commanditaire, chef de projet, jalo
 Chaque section doit être autonome et complète — 2 à 5 phrases, factuelle et structurée."""
 
 
-async def generate_hermes_document(deliverable_id: int, template_key: str) -> dict:
+async def generate_hermes_document(
+    deliverable_id: int,
+    template_key: str,
+    custom_template_path: Optional[str] = None,
+) -> dict:
     """
     Génère un document HERMES en remplissant les sections via Claude.
     Retourne un dict avec les sections générées et le chemin du fichier Word.
@@ -68,7 +73,10 @@ async def generate_hermes_document(deliverable_id: int, template_key: str) -> di
         )
 
     # 3. Fusionner dans le template Word
-    output_path = await _merge_into_template(template_key, project_data, sections, deliverable_id)
+    output_path = await _merge_into_template(
+        template_key, project_data, sections, deliverable_id,
+        custom_template_path=custom_template_path
+    )
 
     # 4. Mettre à jour la DB
     await _update_deliverable(deliverable_id, output_path, len(sections))
@@ -141,12 +149,19 @@ async def _get_project_data(deliverable_id: int) -> dict:
 
 
 async def _merge_into_template(
-    template_key: str, project_data: dict, sections: dict, deliverable_id: int
+    template_key: str,
+    project_data: dict,
+    sections: dict,
+    deliverable_id: int,
+    custom_template_path: Optional[str] = None,
 ) -> Path:
     """Fusionne les sections générées dans le template Word."""
-    template_path = Path(__file__).parent.parent / TEMPLATE_MAP.get(
-        template_key, "templates/mandat_projet.docx"
-    )
+    if custom_template_path:
+        template_path = Path(custom_template_path)
+    else:
+        template_path = Path(__file__).parent.parent / TEMPLATE_MAP.get(
+            template_key, "templates/mandat_projet.docx"
+        )
 
     output_dir = Path("/app/uploads/generated")
     output_dir.mkdir(parents=True, exist_ok=True)
