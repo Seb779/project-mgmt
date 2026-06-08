@@ -155,6 +155,7 @@ export interface GenerateDocumentRequest {
   template_key: string;
   title?: string;
   description?: string;
+  custom_template_filename?: string;
 }
 
 export interface GenerateDocumentResponse {
